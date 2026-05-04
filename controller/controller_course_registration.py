@@ -1,12 +1,15 @@
 
 import inspect
 import logging
+from actions.get_course_registration import get_course_registration
+from actions.go_home import go_home
+from actions.course_registration import course_registration
+from actions.go_to_add_course_registration import go_to_add_course_registration
 from actions.go_to_course_registration import go_to_course_registration
 from actions.login import login
 from actions.web_driver import close_driver, get_page
 from utils.error import messageError
-
-# NO BORRAR PARA QUE LOS TEST DE LA PIPELINE NO DEN ERROR
+from datetime import datetime
 
 
 def controller_course_registration(data):
@@ -30,12 +33,17 @@ def controller_course_registration(data):
             raise messageError(
                 f"The field 'shift' must be one of: {', '.join(valid_shifts)}")
 
+        try:
+            datetime.strptime(date, "%d/%m/%Y")
+        except ValueError:
+            raise messageError(
+                "The field 'date' must have the format DD/MM/YYYY, e.g. '04/05/2026'")
+
     except KeyError as e:
         raise messageError(f"The field '{e.args[0]}' has not been sent")
 
     driver = None
     try:
-        message = "ok"
 
         # You can choose betwen Chrome (default ) or firefox. Example: get_page('firefox')
         driver = get_page()
@@ -44,11 +52,21 @@ def controller_course_registration(data):
 
         driver = login(driver, username, password)
 
+        driver = go_home(driver)
+
         driver = go_to_course_registration(driver)
 
-        # Add actions
+        driver = go_to_add_course_registration(driver)
 
-        return message
+        driver = course_registration(driver, data)
+
+        driver = go_home(driver)
+
+        driver = go_to_course_registration(driver)
+
+        driver, course_registrations = get_course_registration(driver)
+
+        return course_registrations
 
     except Exception as e:
         raise messageError(
