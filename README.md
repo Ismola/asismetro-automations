@@ -6,6 +6,27 @@
 
 ---
 
+## 📋 Table of Contents
+
+- [✨ Main Features](#-main-features)
+- [📁 Project Structure](#-project-structure)
+- [⚙️ Environment Variables](#️-environment-variables)
+- [🏁 Quick Start](#-quick-start)
+- [▶️ Running](#️-running)
+- [⚙️ CI/CD and Workflow Customization](#️-cicd-and-workflow-customization)
+- [🔗 API Usage](#-api-usage)
+- [🛠️ Customization & Extension](#️-customization--extension)
+- [🧩 Architecture & Flow](#-architecture--flow)
+- [🚢 Deployment](#-deployment)
+- [⚙️ GitHub Actions CI/CD](#️-github-actions-cicd)
+- [🧪 Automated Testing](#-automated-testing)
+- [🐞 Troubleshooting](#-troubleshooting)
+- [📚 Resources & Bibliography](#-resources--bibliography)
+- [🤝 Contributions](#-contributions)
+- [📝 License](#-license)
+
+---
+
 ## ✨ Main Features
 
 - **Selenium Automation:** Advanced interaction with dynamic web pages.
