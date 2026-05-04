@@ -15,7 +15,7 @@ DOWNLOAD_DIR = os.path.abspath("temp_downloads")
 PORT = int(os.getenv("PORT", 3000))
 PAGE_MAX_TIMEOUT = 7
 DOWNLOAD_MAX_TIMEOUT = 4
-BASE_URL = 'https://www.google.com/'
+BASE_URL = 'https://asismetro.org/'
 LOG_FILE_DELETION_DAYS = 30
 
 def has_display():

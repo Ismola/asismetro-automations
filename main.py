@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
+from controller.controller_course_registration import controller_course_registration
 from controller.controller_sample import controller_sample
 from controller.controller_test import controller_test
 from utils.handle_request import handle_request_endpoint
 from utils.config import PORT, STAGE
+
 
 def create_app():
 
@@ -19,6 +21,16 @@ def create_app():
         """Sample endpoint demonstrating controller usage."""
         try:
             return handle_request_endpoint(controller_sample)
+        except Exception as e:
+            app.logger.error("An error occurred: %s", str(e))
+            return jsonify(error="An internal error has occurred."), 500
+
+    # No borrar para hacer pruebas
+
+    @app.route('/course_registration', methods=['GET'])
+    def course_registration_endpoint():
+        try:
+            return handle_request_endpoint(controller_course_registration)
         except Exception as e:
             app.logger.error("An error occurred: %s", str(e))
             return jsonify(error="An internal error has occurred."), 500

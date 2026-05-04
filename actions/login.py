@@ -14,17 +14,17 @@ def login(driver, username, password):
     logging.info(f"START || {inspect.currentframe().f_code.co_name}")
     try:
         user_input = search_element(driver, (
-            By.CSS_SELECTOR, 'input[placeholder="Escriba su correo electrónico"]'
+            By.CSS_SELECTOR, 'input[placeholder="Email Usuario"]'
         ))
         driver = write_element(driver, user_input, username)
 
         password_input = search_element(driver, (
-            By.CSS_SELECTOR, 'input[type="password"][placeholder="Escriba su contraseña"]'
+            By.CSS_SELECTOR, 'input[type="password"][placeholder="Clave"]'
         ))
         driver = write_element(driver, password_input, password)
 
         button_input = search_element(driver, (
-            By.CSS_SELECTOR, '[data-testid="login-submit-button"]'
+            By.CSS_SELECTOR, 'button[name="signIn"][type="submit"][id="submit"]'
         ))
         driver = click_element(driver, button_input)
 
