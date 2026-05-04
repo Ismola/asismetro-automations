@@ -2,7 +2,7 @@
 
 **Selenium Scraper Quickstarter** is a professional template for building robust and scalable web scrapers using Selenium and Flask, ready for local development, Docker containers, and cloud deployment.
 
-[![Deploy](https://github.com/siryus-org/siryus-selenium-scraper-quickstarter/actions/workflows/deploy.yml/badge.svg)](https://github.com/siryus-org/siryus-selenium-scraper-quickstarter/actions/workflows/deploy.yml)
+[![Deploy](https://github.com/Ismola/asismetro-automations/actions/workflows/deploy.yml/badge.svg)](https://github.com/Ismola/asismetro-automations/actions/workflows/deploy.yml)
 
 ---
 
@@ -184,49 +184,150 @@ curl -H "Authorization: Bearer sample" http://localhost:3000/sample
 
 ## 🚢 Deployment
 
-There are several recommended ways to deploy your scraper in a production or staging environment:
+There are several recommended ways to deploy this project in a production environment.
 
-### 1. Gunicorn (Recommended for Production)
+> **⚠️ Important:** Always set `STAGE=production` in your environment before deploying. This disables Flask's debug mode and enables production-safe behaviour.
 
-The project is ready to be served using [Gunicorn](https://gunicorn.org/), a robust WSGI HTTP server for Python web applications. This is the method used in the provided Dockerfile.
+---
 
-**To run with Gunicorn manually:**
+### 1. Pre-built Docker image from GHCR (Recommended)
+
+A ready-to-use Docker image is published automatically to the GitHub Container Registry after every successful CI run. This is the fastest way to get the project running without cloning the source code.
+
+**Pull the image:**
 
 ```bash
-gunicorn -w 2 -b 0.0.0.0:3000 --timeout 600 main:app
+docker pull ghcr.io/ismola/asismetro-automations:latest
 ```
 
-- `-w 2`: Number of worker processes (adjust as needed).
+**Run the container directly:**
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -e STAGE=production \
+  -e VALID_TOKEN=your_secret_token \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/temp_downloads:/app/temp_downloads \
+  --name asismetro \
+  ghcr.io/ismola/asismetro-automations:latest
+```
+
+**Or using an `.env` file:**
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  --env-file .env \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/temp_downloads:/app/temp_downloads \
+  --name asismetro \
+  ghcr.io/ismola/asismetro-automations:latest
+```
+
+Example `.env` for production:
+
+```env
+STAGE=production
+VALID_TOKEN=your_secret_token
+PORT=3000
+HEADLESS_MODE=True
+BROWSER_LANGUAGE=en
+AUTO_DELETE_LOGS=True
+```
+
+---
+
+### 2. Docker Compose (Recommended for servers with persistent storage)
+
+The repository includes a `compose.yaml` that wires up volumes, environment variables, and a health check automatically.
+
+**Using the pre-built image (no build needed):**
+
+Create a `compose.yaml` on your server:
+
+```yaml
+services:
+  server:
+    image: ghcr.io/ismola/asismetro-automations:latest
+    ports:
+      - 3000:3000
+    container_name: asismetro
+    volumes:
+      - ./logs:/app/logs
+      - ./temp_downloads:/app/temp_downloads
+    restart: unless-stopped
+    environment:
+      - STAGE=production
+      - VALID_TOKEN=your_secret_token
+      - HEADLESS_MODE=True
+```
+
+Then run:
+
+```bash
+docker compose up -d
+```
+
+**Or clone the repo and build locally:**
+
+```bash
+git clone https://github.com/Ismola/asismetro-automations.git
+cd asismetro-automations
+cp .env.example .env   # edit .env and set STAGE=production
+docker compose up --build -d
+```
+
+#### Volumes
+
+| Host path | Container path | Purpose |
+|-----------|----------------|---------|
+| `./logs` | `/app/logs` | Persists application logs |
+| `./temp_downloads` | `/app/temp_downloads` | Persists downloaded files |
+
+---
+
+### 3. Build your own Docker image
+
+If you have modified the source code and want to build your own image:
+
+```bash
+docker build -t asismetro-automations .
+docker run -d \
+  -p 3000:3000 \
+  -e STAGE=production \
+  -e VALID_TOKEN=your_secret_token \
+  asismetro-automations
+```
+
+---
+
+### 4. Gunicorn (bare-metal / VPS without Docker)
+
+The project is served by [Gunicorn](https://gunicorn.org/) inside the Docker image. You can also run it directly:
+
+```bash
+pip install -r requirements.txt
+STAGE=production VALID_TOKEN=your_secret_token \
+  gunicorn -w 2 -b 0.0.0.0:3000 --timeout 600 main:app
+```
+
+- `-w 2`: Number of worker processes (adjust to your CPU count).
 - `-b 0.0.0.0:3000`: Binds to all interfaces on port 3000.
-- `--timeout 600`: Increases timeout for long scraping tasks.
+- `--timeout 600`: Increases timeout for long-running scraping tasks.
 
-### 2. Docker (Recommended for Consistency)
+---
 
-You can deploy the application using Docker, ensuring all dependencies and environment settings are consistent across environments.
+### Verify the deployment
 
-**Build and run the container:**
-
-```bash
-docker build -t selenium-scraper .
-docker run --env-file .env -p 3000:3000 selenium-scraper
-```
-
-### 3. Docker Compose (For Multi-Service and Volume Management)
-
-The repository includes a `compose.yaml` file for [Docker Compose](https://docs.docker.com/compose/), which simplifies running the application with persistent storage
-
-**To deploy with Docker Compose:**
+After starting the container, check the health endpoint:
 
 ```bash
-docker compose up --build
+curl http://localhost:3000/
+# Expected: selenium-scraper-quickstarter
 ```
 
-#### Volumes in Compose
-
-- `./logs:/app/logs`: Persists application logs on your host machine for easier debugging and auditing.
-- `./temp_downloads:/app/temp_downloads`: Stores downloaded files outside the container, so you don't lose data on container restarts.
-
-> **Tip:** You can customize the exposed ports and volume paths in `compose.yaml` as needed for your infrastructure.
+> **Tip:** You can customize the exposed port and volume paths in `compose.yaml` as needed for your infrastructure.
 
 ---
 
@@ -283,13 +384,6 @@ The project includes automated tests located in the `test/` folder, using `pytes
 - Use the Flask client to simulate HTTP requests and validate responses.
 - To test new endpoints, create functions starting with `test_` and use the `client` fixture.
 - See the [pytest documentation](https://docs.pytest.org/) for more options and best practices.
-
----
-
-## 🤖 Custom instructions for GitHub Copilot
-
-This project uses custom Copilot instructions from [Ismola/personal-copilot-instructions](https://github.com/Ismola/personal-copilot-instructions).  
-Each time the devcontainer starts, they are cloned and updated automatically in `.github/instructions`.
 
 ---
 
