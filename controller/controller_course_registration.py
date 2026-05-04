@@ -1,6 +1,7 @@
 
 import inspect
 import logging
+from actions.go_to_course_registration import go_to_course_registration
 from actions.login import login
 from actions.web_driver import close_driver, get_page
 from utils.error import messageError
@@ -24,10 +25,10 @@ def controller_course_registration(data):
             raise messageError(
                 f"The field 'activity' must be one of: {', '.join(valid_activities)}")
 
-        valid_numbers = ["1", "2", "3", "4"]
-        if number not in valid_numbers:
+        valid_shifts = ["1", "2", "3", "4"]
+        if shift not in valid_shifts:
             raise messageError(
-                f"The field 'number' must be one of: {', '.join(valid_numbers)}")
+                f"The field 'shift' must be one of: {', '.join(valid_shifts)}")
 
     except KeyError as e:
         raise messageError(f"The field '{e.args[0]}' has not been sent")
@@ -42,6 +43,8 @@ def controller_course_registration(data):
         # TODO: decominate to use login
 
         driver = login(driver, username, password)
+
+        driver = go_to_course_registration(driver)
 
         # Add actions
 
