@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "siryus-selenium-scrapper-quickstarter",
+	"name": "asismetro-automations",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 	"features": {
@@ -39,7 +39,7 @@
 	"appPort": 3000,
 	"runArgs": [
 		"--name",
-		"selenium-scrapper-quickstarter",
+		"asismetro-automations",
 		"--env",
 		"TZ=Europe/Madrid"
 		// ,"--network",
