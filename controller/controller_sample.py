@@ -1,0 +1,40 @@
+
+import inspect
+import logging
+from actions.web_driver import close_driver, get_page
+from utils.error import messageError
+
+# NO BORRAR PARA QUE LOS TEST DE LA PIPELINE NO DEN ERROR
+
+
+def controller_sample(data):
+
+    try:
+        username = data['username']
+        password = data['password']
+
+    except KeyError as e:
+        raise messageError(f"The field '{e.args[0]}' has not been sent")
+
+    driver = None
+    try:
+        message = "ok"
+
+        # You can choose betwen Chrome (default ) or firefox. Example: get_page('firefox')
+        driver = get_page()
+
+        # TODO: decominate to use login
+
+        # driver = login(driver, username, password)
+
+        # Add actions
+
+        return message
+
+    except Exception as e:
+        raise messageError(
+            f"Error {inspect.currentframe().f_code.co_name}: {e}")
+
+    finally:
+        if driver is not None:
+            close_driver(driver)

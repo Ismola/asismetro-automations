@@ -1,0 +1,37 @@
+{
+    "cSpell.words": [
+        "dotenv",
+        "jsonify",
+        "laparams",
+        "maxpages",
+        "pagenos",
+        "pdfinterp",
+        "pdfminer",
+        "pdfpage",
+        "retstr",
+        "rsrcmgr",
+        "seleniumbase",
+        "venv",
+        "virtualenv"
+    ],
+    "conventionalCommits.scopes": [
+        "readme",
+        "license",
+        "login_sample",
+        "config",
+        "file_manager",
+        ".env.example",
+        "main",
+        "devContainer",
+        "handle_request_endpoint",
+        "search_element",
+        "write_element",
+        "logger",
+        "docker",
+        "init_manual",
+        "web driver",
+        "controller sample",
+        "requirements",
+        "Github Action"
+    ]
+}
