@@ -1,0 +1,35 @@
+services:
+  server:
+    build:
+      context: .
+    expose:
+      - 3000
+    container_name: asismetro-automations
+    volumes:
+      - ./logs:/app/logs
+      - ./temp_downloads:/app/temp_downloads
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Europe/Madrid}
+      - STAGE=${STAGE:-production}
+      - VALID_TOKEN=${VALID_TOKEN:-sample}
+      - AUTO_DELETE_LOGS=${AUTO_DELETE_LOGS:-True}
+      - HEADLESS_MODE=${HEADLESS_MODE:-auto}
+      - BROWSER_LANGUAGE=${BROWSER_LANGUAGE:-en}
+      - DOWNLOAD_DIR=${DOWNLOAD_DIR:-temp_downloads}
+      - PAGE_MAX_TIMEOUT=${PAGE_MAX_TIMEOUT:-7}
+      - DOWNLOAD_MAX_TIMEOUT=${DOWNLOAD_MAX_TIMEOUT:-4}
+      - BASE_URL=${BASE_URL:-https://www.google.com/}
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - cloudflare_default
+
+networks:
+  cloudflare_default:
+    external: true
