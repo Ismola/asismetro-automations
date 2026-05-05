@@ -19,7 +19,7 @@ services:
       - DOWNLOAD_DIR=${DOWNLOAD_DIR:-temp_downloads}
       - PAGE_MAX_TIMEOUT=${PAGE_MAX_TIMEOUT:-7}
       - DOWNLOAD_MAX_TIMEOUT=${DOWNLOAD_MAX_TIMEOUT:-4}
-      - BASE_URL=${BASE_URL:-https://www.google.com/}
+
     healthcheck:
       test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/')" ]
       interval: 30s
