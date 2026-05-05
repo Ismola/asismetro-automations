@@ -107,6 +107,102 @@ curl -X GET http://localhost:3000/course_registration \
 
 ---
 
+### `GET /get-calendar`
+
+Retrieves the shift calendar for the current month and the next month from [asismetro.org](https://asismetro.org).
+
+**Auth required:** Yes
+
+**Request body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `username` | string | Yes | Login username for asismetro.org |
+| `password` | string | Yes | Login password for asismetro.org |
+
+**Example request:**
+
+```bash
+curl -X GET http://localhost:3000/get-calendar \
+  -H "Authorization: Bearer sample" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "myuser", "password": "mypassword"}'
+```
+
+**Success response (`200`):**
+
+```json
+{
+  "status": "OK",
+  "message": {
+    "actual_calendar": { "sections": [ ... ] },
+    "next_calendar":   { "sections": [ ... ] }
+  },
+  "time": 15.42
+}
+```
+
+Both `actual_calendar` and `next_calendar` share the same structure:
+
+```json
+{
+  "sections": [
+    {
+      "days": [
+        { "weekday": "Lunes", "date": "1 MAYO" },
+        { "weekday": "Martes", "date": "2 MAYO" }
+      ],
+      "slots": [
+        {
+          "time_range": "09:00 - 12:00",
+          "entries": [
+            {
+              "weekday": "Lunes",
+              "date": "1 MAYO",
+              "status": "warning" | "danger" | "info" | "active" | null,
+              "request_button": {
+                "label": "Solicitar Turno",
+                "onclick": "cambio('A','1234567890','1','MAYO','T1')",
+                "parsed_onclick": {
+                  "raw": "cambio('A','1234567890','1','MAYO','T1')",
+                  "action_code": "A",
+                  "unix_time": "1234567890",
+                  "day_number": "1",
+                  "month": "MAYO",
+                  "slot_code": "T1"
+                }
+              },
+              "assignees": [
+                { "id": "1", "name": "Carlos Castellanos", "phone": "607297573" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Each calendar is split into **sections** (one per week). Each section contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `days` | object[] | Ordered list of days in the week (`weekday`, `date`) |
+| `slots` | object[] | Time slots for that week |
+| `slots[].time_range` | string | Time range label, e.g. `"09:00 - 12:00"` |
+| `slots[].entries` | object[] | One entry per day — mirrors the `days` order |
+| `entries[].weekday` | string \| null | Weekday name |
+| `entries[].date` | string \| null | Date label, e.g. `"1 MAYO"` |
+| `entries[].status` | string \| null | CSS class indicating slot state: `"warning"`, `"danger"`, `"info"`, `"active"`, or `null` |
+| `entries[].request_button` | object \| null | Present when the slot can be requested; `null` otherwise |
+| `entries[].assignees` | object[] | People assigned to the slot (may be empty) |
+| `assignees[].id` | string \| null | Internal toggle ID |
+| `assignees[].name` | string \| null | Assignee full name |
+| `assignees[].phone` | string \| null | Assignee phone number |
+
+---
+
 ### `GET /sample`
 
 Sample/demo endpoint for testing controller wiring. Requires credentials but performs no real action.
