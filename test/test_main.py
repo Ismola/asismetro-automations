@@ -20,7 +20,7 @@ def test_index(client):
     """Prueba el endpoint raíz /"""
     response = client.get('/')
     assert response.status_code == 200
-    assert b'selenium-scraper-quickstarter' in response.data
+    assert b'asismetro-automations' in response.data
 
 
 def test_sample_endpoint_without_auth(client):

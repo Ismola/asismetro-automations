@@ -14,7 +14,7 @@ def create_app():
     @app.route('/')
     def index():
         """Root endpoint for health check."""
-        return 'asismetro-automations!', 200
+        return 'asismetro-automations', 200
 
     # No borrar para hacer pruebas
     @app.route('/sample', methods=['GET'])
