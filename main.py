@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from controller.controller_course_registration import controller_course_registration
+from controller.controller_get_calendar import controller_get_calendar
 from controller.controller_sample import controller_sample
 from controller.controller_test import controller_test
 from utils.handle_request import handle_request_endpoint
@@ -31,6 +32,14 @@ def create_app():
     def course_registration_endpoint():
         try:
             return handle_request_endpoint(controller_course_registration)
+        except Exception as e:
+            app.logger.error("An error occurred: %s", str(e))
+            return jsonify(error="An internal error has occurred."), 500
+
+    @app.route('/get-calendar', methods=['GET'])
+    def get_calendar_endpoint():
+        try:
+            return handle_request_endpoint(controller_get_calendar)
         except Exception as e:
             app.logger.error("An error occurred: %s", str(e))
             return jsonify(error="An internal error has occurred."), 500
