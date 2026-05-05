@@ -29,4 +29,4 @@ jobs:
     steps:
       - name: Webhook to Service
         run: |
-          curl -f -X POST http://service || echo "Error haciendo POST"
+          curl -f -X POST ${{ secrets.WEBHOOK_URL }} || echo "Error haciendo POST"
