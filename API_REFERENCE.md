@@ -53,7 +53,7 @@ selenium-scraper-quickstarter
 
 ---
 
-### `GET /course_registration`
+### `POST /course_registration`
 
 Registers a course attendance entry in [asismetro.org](https://asismetro.org) and returns the current list of registrations.
 
@@ -73,7 +73,7 @@ Registers a course attendance entry in [asismetro.org](https://asismetro.org) an
 **Example request:**
 
 ```bash
-curl -X GET http://localhost:3000/course_registration \
+curl -X POST http://localhost:3000/course_registration \
   -H "Authorization: Bearer sample" \
   -H "Content-Type: application/json" \
   -d '{
@@ -107,7 +107,7 @@ curl -X GET http://localhost:3000/course_registration \
 
 ---
 
-### `GET /get-calendar`
+### `POST /get-calendar`
 
 Retrieves the shift calendar for the current month and the next month from [asismetro.org](https://asismetro.org).
 
@@ -123,7 +123,7 @@ Retrieves the shift calendar for the current month and the next month from [asis
 **Example request:**
 
 ```bash
-curl -X GET http://localhost:3000/get-calendar \
+curl -X POST http://localhost:3000/get-calendar \
   -H "Authorization: Bearer sample" \
   -H "Content-Type: application/json" \
   -d '{"username": "myuser", "password": "mypassword"}'

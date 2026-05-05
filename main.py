@@ -28,7 +28,7 @@ def create_app():
 
     # No borrar para hacer pruebas
 
-    @app.route('/course_registration', methods=['GET'])
+    @app.route('/course_registration', methods=['POST'])
     def course_registration_endpoint():
         try:
             return handle_request_endpoint(controller_course_registration)
@@ -36,7 +36,7 @@ def create_app():
             app.logger.error("An error occurred: %s", str(e))
             return jsonify(error="An internal error has occurred."), 500
 
-    @app.route('/get-calendar', methods=['GET'])
+    @app.route('/get-calendar', methods=['POST'])
     def get_calendar_endpoint():
         try:
             return handle_request_endpoint(controller_get_calendar)
