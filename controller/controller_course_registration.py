@@ -1,6 +1,5 @@
 
 import inspect
-import logging
 from actions.get_course_registration import get_course_registration
 from actions.go_home import go_home
 from actions.course_registration import course_registration
@@ -10,6 +9,7 @@ from actions.login import login
 from actions.web_driver import close_driver, get_page
 from utils.error import messageError
 from datetime import datetime
+from utils.file_manager import take_screenshot
 
 
 def controller_course_registration(data):
@@ -69,6 +69,10 @@ def controller_course_registration(data):
         return course_registrations
 
     except Exception as e:
+        try:
+            take_screenshot(driver)
+        except:
+            pass
         raise messageError(
             f"Error {inspect.currentframe().f_code.co_name}: {e}")
 
