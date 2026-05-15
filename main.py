@@ -26,7 +26,7 @@ def create_app():
             app.logger.error("An error occurred: %s", str(e))
             return jsonify(error="An internal error has occurred."), 500
 
-    # No borrar para hacer pruebas
+    
 
     @app.route('/course_registration', methods=['POST'])
     def course_registration_endpoint():
@@ -44,6 +44,7 @@ def create_app():
             app.logger.error("An error occurred: %s", str(e))
             return jsonify(error="An internal error has occurred."), 500
 
+# No borrar para hacer pruebas
     @app.route('/test', methods=['GET', 'POST'])
     def test_endpoint():
         """
