@@ -1,4 +1,5 @@
 import inspect
+from time import sleep
 from actions.click_element import click_element
 from actions.search_element import search_element
 from actions.write_element import write_element
@@ -27,6 +28,8 @@ def login(driver, username, password):
             By.CSS_SELECTOR, 'button[name="signIn"][type="submit"][id="submit"]'
         ))
         driver = click_element(driver, button_input)
+        
+        sleep(2)
 
         return driver
     except Exception as e:
