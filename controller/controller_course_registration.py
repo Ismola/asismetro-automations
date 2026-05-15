@@ -48,8 +48,6 @@ def controller_course_registration(data):
         # You can choose betwen Chrome (default ) or firefox. Example: get_page('firefox')
         driver = get_page()
 
-        # TODO: decominate to use login
-
         driver = login(driver, username, password)
 
         driver = go_home(driver)

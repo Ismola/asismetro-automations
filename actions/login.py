@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 import logging
 
 # The driver must have accessed the target url
-# TODO: Modify login for hacerlo coincide with the web site
 
 
 def login(driver, username, password):
@@ -28,7 +27,7 @@ def login(driver, username, password):
             By.CSS_SELECTOR, 'button[name="signIn"][type="submit"][id="submit"]'
         ))
         driver = click_element(driver, button_input)
-        
+
         sleep(2)
 
         return driver

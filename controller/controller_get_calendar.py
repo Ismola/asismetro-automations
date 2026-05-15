@@ -10,6 +10,7 @@ from actions.web_driver import close_driver, get_page
 from utils.error import messageError
 from utils.file_manager import take_screenshot
 
+
 def controller_get_calendar(data):
 
     try:
@@ -25,8 +26,6 @@ def controller_get_calendar(data):
         # You can choose betwen Chrome (default ) or firefox. Example: get_page('firefox')
         driver = get_page()
 
-        # TODO: decominate to use login
-
         driver = login(driver, username, password)
 
         driver = go_home(driver)
@@ -34,7 +33,7 @@ def controller_get_calendar(data):
         driver = go_to_calendars(driver)
 
         driver = go_to_actual_calendar(driver)
-        
+
         driver, actual_calendar = get_calendar(driver)
 
         driver = go_home(driver)
