@@ -22,7 +22,15 @@ def _human_typing_delay(min_delay=0.05, max_delay=2):
 
 # This function searches for an element on the page, scrolls to it, and writes to it with multiple fallback strategies.
 def write_element(driver, element, text, clear=True, slow=False, max_attempts=3):
-    logging.info(f"START || {inspect.currentframe().f_code.co_name} - Element: {element}, Text: {text}")
+    # Never log field contents: this helper writes both usernames and passwords.
+    input_type = element.get_attribute('type') if element is not None else None
+    logging.info(
+        "START || %s - Element: %s, Input type: %s, Text length: %s",
+        inspect.currentframe().f_code.co_name,
+        element,
+        input_type,
+        len(text) if text is not None else 0,
+    )
     """
     Segrating text safely to an element with multiple Fallback strategies
 
