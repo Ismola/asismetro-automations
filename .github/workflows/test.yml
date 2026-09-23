@@ -61,7 +61,7 @@ jobs:
 
       - name: Start Docker Compose in detached mode
         run: |
-          docker compose -f compose.yaml -f compose.test.yaml up --build -d
+          docker compose -f compose.yaml -f compose.yaml up --build -d
 
       - name: Test endpoint raíz con curl
         run: |
@@ -106,4 +106,4 @@ jobs:
 
       - name: Stop Docker Compose
         run: |
-          docker compose -f compose.yaml -f compose.test.yaml down
+          docker compose -f compose.yaml -f compose.yaml down
