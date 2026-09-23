@@ -1,6 +1,6 @@
 import inspect
 import logging
-from actions.search_element import search_element
+from selenium_scraper_runtime.elements import search_element
 from utils.error import messageError
 from selenium.webdriver.common.by import By
 
@@ -18,7 +18,7 @@ def get_calendar(driver):
             const table = arguments[0];
 
             const textOrNull = (value) => {
-                const cleaned = (value || '').replace(/\s+/g, ' ').trim();
+                const cleaned = (value || '').replace(/\\s+/g, ' ').trim();
                 return cleaned || null;
             };
 

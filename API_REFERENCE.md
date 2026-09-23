@@ -292,7 +292,12 @@ curl -X POST http://localhost:3000/test \
 |----------|---------|-------------|
 | `PORT` | `3000` | Port the server listens on |
 | `STAGE` | `staging` | Set to `production` to disable Flask debug mode |
-| `VALID_TOKEN` | `sample` | Bearer token required to authenticate requests |
+| `VALID_TOKEN` | `sample` outside production | Bearer token required to authenticate requests; production rejects missing or default values |
 | `HEADLESS_MODE` | `auto` | `True` to force headless, `auto` to detect display |
 | `BROWSER_LANGUAGE` | `en` | Browser locale |
-| `AUTO_DELETE_LOGS` | `true` | Automatically clean up old log files |
+| `SELENIUM_FORCE_INTERACTABLE` | `true` | Enables the compatibility fallback used by the previous Asismetro click helper |
+| `BASE_URL` | `https://asismetro.org/` | Initial browser URL |
+| `METRICS_PORT` | `9090` | Internal metrics and health port |
+| `SCRAPER_SERVICE_NAME` | `asismetro-automations` | Service label included in JSON logs and metrics |
+| `WEBDRIVER_COMMAND_TIMEOUT` | `120` | Maximum duration in seconds for one WebDriver command |
+| `WEBDRIVER_MAX_LIFETIME` | `1800` | Maximum lifetime in seconds for a local browser process tree |

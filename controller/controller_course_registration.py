@@ -6,7 +6,7 @@ from actions.course_registration import course_registration
 from actions.go_to_add_course_registration import go_to_add_course_registration
 from actions.go_to_course_registration import go_to_course_registration
 from actions.login import login
-from actions.web_driver import close_driver, get_page
+from selenium_scraper_runtime.browser import close_driver, get_page
 from utils.error import messageError
 from datetime import datetime
 from utils.file_manager import take_screenshot

@@ -1,109 +1,86 @@
-name: 🐳 Smoke Test
-
+name: Test
 on:
   workflow_call:
   pull_request:
+  push:
+    branches-ignore: [main]
 
 jobs:
-  build-test:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python (para tests)
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-
-      - name: Install dependencies for tests
+          python-version: '3.10'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+        env:
+          STAGE: staging
+          VALID_TOKEN: sample
+          SCRAPER_SERVICE_NAME: asismetro-automations
+      - run: docker build -t asismetro-automations:test .
+      - name: Test container and browser cleanup
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          pip install pyyaml
-          pip install -r requirements.txt
+          docker run -d --init --name asismetro-automations-test --shm-size=512m \
+            -e STAGE=staging -e VALID_TOKEN=sample \
+            -e SCRAPER_SERVICE_NAME=asismetro-automations \
+            -e 'BASE_URL=data:text/html,<title>ok</title>' \
+            asismetro-automations:test
+          docker exec -i asismetro-automations-test python - <<'PYTEST'
+          import time
+          import urllib.request
 
-      - name: Run Test
-        run: |
-          pytest test/ -v
+          for _ in range(60):
+              try:
+                  response = urllib.request.urlopen('http://127.0.0.1:3000/', timeout=2)
+                  assert response.read() == b'asismetro-automations'
+                  assert response.headers['X-Run-ID']
+                  break
+              except Exception:
+                  time.sleep(1)
+          else:
+              raise AssertionError('API did not start')
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+          assert urllib.request.urlopen('http://127.0.0.1:9090/-/healthy', timeout=2).status == 200
 
-      - name: Copiar .env.example como .env
-        run: cp .env.example .env
+          from selenium_scraper_runtime.browser import close_driver, get_page
+          for browser in ('chrome', 'firefox'):
+              driver = get_page(browser, url='data:text/html,<title>ok</title>')
+              try:
+                  assert driver.title == 'ok'
+              finally:
+                  close_driver(driver)
 
-      - name: Ensure external docker networks exist
-        run: |
-          mapfile -t networks < <(python - <<'PY'
-          import yaml
+          import psutil
+          import subprocess
+          import sys
 
-          with open("compose.yaml", "r", encoding="utf-8") as handle:
-              data = yaml.safe_load(handle) or {}
+          time.sleep(2)
+          browser_names = ('chromium', 'chrome', 'firefox', 'gecko')
+          remaining = [p for p in psutil.process_iter(['name'])
+                       if p.info['name'] and any(name in p.info['name'] for name in browser_names)]
+          assert not remaining
 
-          networks = data.get("networks", {}) or {}
-          external = []
-          for net_name, net_cfg in networks.items():
-              if isinstance(net_cfg, dict) and net_cfg.get("external") is True:
-                  external.append(net_cfg.get("name") or net_name)
-
-          for name in external:
-              print(name)
-          PY
+          owner = subprocess.Popen(
+              [sys.executable, '-c',
+               "import time; from selenium_scraper_runtime.browser import get_page; "
+               "get_page('chrome', url='data:text/html,<title>ok</title>'); "
+               "print('ready', flush=True); time.sleep(60)"],
+              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
           )
-
-          for net in "${networks[@]}"; do
-            if [ -n "$net" ]; then
-              docker network inspect "$net" >/dev/null 2>&1 || docker network create "$net"
-            fi
-          done
-
-      - name: Start Docker Compose in detached mode
-        run: |
-          docker compose -f compose.yaml -f compose.yaml up --build -d
-
-      - name: Test endpoint raíz con curl
-        run: |
-          sleep 5  # Espera a que el contenedor esté listo
-          curl -f http://localhost:3000/ || (docker compose logs && exit 1)
-
-      - name: Test endpoint /sample con autenticación
-        run: |
-          response=$(curl -s -w "\n%{http_code}" -X GET http://localhost:3000/sample \
-            -H "Authorization: Bearer sample" \
-            -H "Content-Type: application/json" \
-            -d '{"username":"testuser","password":"testpass"}')
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | head -n-1)
-          echo "HTTP Code: $http_code"
-          echo "Response: $body"
-          # Verificar que devuelve 200 (OK)
-          if [ "$http_code" != "200" ]; then
-            echo "❌ Error: Se esperaba código 200, pero se obtuvo $http_code"
-            docker compose logs
-            exit 1
-          fi
-          echo "✅ Test de /sample pasado correctamente (código: 200)"
-
-      - name: Test endpoint /test con autenticación (Controller Test)
-        run: |
-          response=$(curl -s -w "\n%{http_code}" -X POST http://localhost:3000/test \
-            -H "Authorization: Bearer sample" \
-            -H "Content-Type: application/json" \
-            -d '{"browsers":["chrome"],"test_search":false,"test_writes":false,"screenshots":true}')
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | head -n-1)
-          echo "HTTP Code: $http_code"
-          echo "Response: $body"
-          # Verificar que devuelve 200 (OK)
-          if [ "$http_code" != "200" ]; then
-            echo "❌ Error: Se esperaba código 200, pero se obtuvo $http_code"
-            docker compose logs
-            exit 1
-          fi
-          echo "✅ Test de /test (Controller Test) pasado correctamente (código: 200)"
-
-      - name: Stop Docker Compose
-        run: |
-          docker compose -f compose.yaml -f compose.yaml down
+          assert owner.stdout.readline().strip() == 'ready'
+          owner.kill()
+          owner.wait(timeout=5)
+          for _ in range(20):
+              remaining = [p for p in psutil.process_iter(['name'])
+                           if p.info['name'] and any(name in p.info['name'] for name in browser_names)]
+              if not remaining:
+                  break
+              time.sleep(0.5)
+          else:
+              raise AssertionError(f'orphan browser processes: {remaining}')
+          PYTEST
+        shell: bash
+      - if: always()
+        run: docker logs asismetro-automations-test 2>/dev/null || true; docker rm -f asismetro-automations-test 2>/dev/null || true

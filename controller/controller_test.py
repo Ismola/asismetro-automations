@@ -17,9 +17,9 @@ import logging
 from time import sleep
 from selenium.webdriver.common.by import By
 
-from actions.web_driver import close_driver, get_page, kill_driver_process
-from actions.search_element import search_element
-from actions.write_element import write_element
+from selenium_scraper_runtime.browser import close_driver, get_page
+from selenium_scraper_runtime.elements import search_element
+from selenium_scraper_runtime.elements import write_element
 from utils.error import messageError
 from utils.file_manager import take_screenshot
 
@@ -326,7 +326,6 @@ def controller_test(data=None):
                 })
 
             finally:
-                # Cerrar driver
                 if driver:
                     try:
                         close_driver(driver)
@@ -335,10 +334,8 @@ def controller_test(data=None):
                     except Exception as e:
                         logging.warning(
                             f"⚠️  Error al cerrar driver de {browser}: {e}")
-                        try:
-                            kill_driver_process()
-                        except:
-                            pass
+                    finally:
+                        driver = None
 
             test_results['browser_results'][browser] = browser_result
             sleep(2)  # Pausa entre navegadores
@@ -381,7 +378,4 @@ def controller_test(data=None):
 
     finally:
         if driver:
-            try:
-                close_driver(driver)
-            except:
-                kill_driver_process()
+            close_driver(driver)

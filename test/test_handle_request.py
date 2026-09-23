@@ -56,7 +56,7 @@ def test_handle_request_missing_required_field(client):
     assert response.status_code == 400
     data = json.loads(response.data)
     assert data['status'] == 'ERROR'
-    assert 'password' in data['message']
+    assert data['message'] == 'The request could not be processed.'
 
 
 def test_handle_request_empty_json(client):
@@ -89,16 +89,15 @@ def test_handle_request_response_time_included(client):
     assert data['time'] >= 0
 
 
-def test_handle_request_logs_without_password(client):
-    """Verifica que no se loguea la contraseña en los datos"""
-    # Este test verifica que el sistema no loguea contraseñas
-    # La implementación filtra 'password' antes de loguear
+def test_handle_request_logs_without_payload(client, monkeypatch, caplog):
+    """Verifica que no se loguean valores de la petición."""
+    monkeypatch.setattr('main.controller_sample', lambda data: 'ok')
     headers = {"Authorization": "Bearer sample"}
-    data = {"username": "testuser", "password": "secretpassword"}
+    data = {"username": "private-user", "password": "private-password"}
     response = client.get('/sample', headers=headers, json=data)
-
-    # Solo verificamos que no lanza excepción al procesar
-    assert response.status_code in [200, 400]
+    assert response.status_code == 200
+    assert 'private-user' not in caplog.text
+    assert 'private-password' not in caplog.text
 
 
 def test_handle_request_malformed_json(client):

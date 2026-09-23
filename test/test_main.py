@@ -21,6 +21,7 @@ def test_index(client):
     response = client.get('/')
     assert response.status_code == 200
     assert b'asismetro-automations' in response.data
+    assert response.headers['X-Run-ID']
 
 
 def test_sample_endpoint_without_auth(client):

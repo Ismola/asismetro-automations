@@ -1,0 +1,65 @@
+#!/bin/sh
+set -eu
+
+export PROMETHEUS_MULTIPROC_DIR="${PROMETHEUS_MULTIPROC_DIR:-/tmp/prometheus-multiproc}"
+if [ "${PORT:-3000}" = "${METRICS_PORT:-9090}" ]; then
+    echo "PORT and METRICS_PORT must be different" >&2
+    exit 1
+fi
+mkdir -p "$PROMETHEUS_MULTIPROC_DIR"
+find "$PROMETHEUS_MULTIPROC_DIR" -type f -delete
+
+gunicorn \
+    --workers 1 \
+    --bind "0.0.0.0:${METRICS_PORT:-9090}" \
+    --no-control-socket \
+    --access-logfile - \
+    --error-logfile - \
+    metrics_app:app &
+metrics_pid=$!
+
+terminate() {
+    trap - INT TERM
+    if [ -n "${app_pid:-}" ]; then
+        kill -TERM "$app_pid" 2>/dev/null || true
+    fi
+    kill -TERM "$metrics_pid" 2>/dev/null || true
+    if [ -n "${app_pid:-}" ]; then
+        wait "$app_pid" 2>/dev/null || true
+    fi
+    wait "$metrics_pid" 2>/dev/null || true
+}
+
+shutdown() {
+    terminate
+    exit 143
+}
+trap shutdown INT TERM
+
+gunicorn \
+    --config python:gunicorn_metrics \
+    --workers "${WEB_CONCURRENCY:-1}" \
+    --max-requests "${GUNICORN_MAX_REQUESTS:-100}" \
+    --max-requests-jitter 10 \
+    --bind "0.0.0.0:${PORT:-3000}" \
+    --no-control-socket \
+    --timeout "${GUNICORN_TIMEOUT:-1800}" \
+    --graceful-timeout "${GUNICORN_GRACEFUL_TIMEOUT:-30}" \
+    --access-logfile - \
+    --error-logfile - \
+    main:app &
+app_pid=$!
+
+while kill -0 "$app_pid" 2>/dev/null && kill -0 "$metrics_pid" 2>/dev/null; do
+    sleep 1
+done
+
+status=1
+if ! kill -0 "$app_pid" 2>/dev/null; then
+    set +e
+    wait "$app_pid"
+    status=$?
+    set -e
+fi
+terminate
+exit "$status"

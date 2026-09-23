@@ -6,7 +6,7 @@ from actions.go_to_actual_calendar import go_to_actual_calendar
 from actions.go_to_calendars import go_to_calendars
 from actions.go_to_next_calendar import go_to_next_calendar
 from actions.login import login
-from actions.web_driver import close_driver, get_page
+from selenium_scraper_runtime.browser import close_driver, get_page
 from utils.error import messageError
 from utils.file_manager import take_screenshot
 

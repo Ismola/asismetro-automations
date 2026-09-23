@@ -46,6 +46,8 @@ Ruta: `POST /course_registration`
 
 Este proyecto no es una API oficial de Asismetro. Automatiza su página web con Selenium, por lo que puede necesitar cambios si la web de Asismetro modifica su diseño.
 
+El navegador, las acciones comunes sobre elementos, los logs JSON y las métricas se proporcionan mediante [selenium-scraper-runtime](https://github.com/Ismola/selenium-scraper-runtime) `v0.2.2`. Cada controlador cierra su sesión en `finally`; la librería también limita la duración de los comandos y elimina el árbol de procesos si el worker termina inesperadamente.
+
 ## Ejemplo: consultar el calendario
 
 ```bash
@@ -87,6 +89,7 @@ docker compose up --build
 ```
 
 La API estará disponible en `http://localhost:3000`.
+Las métricas estarán disponibles en `http://localhost:9090/metrics` y el healthcheck en `http://localhost:9090/-/healthy`.
 
 Antes de usarla, edita `.env` y cambia al menos estas variables:
 
@@ -119,10 +122,13 @@ La documentación técnica completa de las peticiones y respuestas está en [API
 
 Las peticiones contienen las credenciales de Asismetro y las respuestas del calendario pueden incluir nombres y teléfonos. En producción se debe usar HTTPS, un token seguro y limitar quién puede acceder a la API.
 
+Los logs se escriben como JSON en stdout e incluyen un `run_id` por petición. No se crean ficheros `.log`; un colector como Alloy puede enviar stdout a Loki y Grafana. Los valores de las peticiones y las respuestas de Asismetro no se incluyen en los logs.
+
 ## Pruebas
 
 ```bash
-pytest
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
 ```
 
 ## Licencia
