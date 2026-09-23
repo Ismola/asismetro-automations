@@ -19,7 +19,7 @@ jobs:
           STAGE: staging
           VALID_TOKEN: sample
           SCRAPER_SERVICE_NAME: asismetro-automations
-      - run: docker build -t asismetro-automations:test .
+      - run: docker build --pull -t asismetro-automations:test .
       - name: Test container and browser cleanup
         run: |
           docker run -d --init --name asismetro-automations-test --shm-size=512m \

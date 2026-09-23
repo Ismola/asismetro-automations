@@ -2,7 +2,9 @@ services:
   server:
     build:
       context: .
+      pull: true
     image: ghcr.io/ismola/asismetro-automations:main
+    pull_policy: always
     init: true
     shm_size: "512m"
     ports:

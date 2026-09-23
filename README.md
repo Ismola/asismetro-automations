@@ -46,7 +46,7 @@ Ruta: `POST /course_registration`
 
 Este proyecto no es una API oficial de Asismetro. Automatiza su página web con Selenium, por lo que puede necesitar cambios si la web de Asismetro modifica su diseño.
 
-El navegador, las acciones comunes sobre elementos, los logs JSON y las métricas se proporcionan mediante [selenium-scraper-runtime](https://github.com/Ismola/selenium-scraper-runtime) `v0.2.3`. Cada controlador cierra su sesión en `finally`; la librería también limita la duración de los comandos y elimina el árbol de procesos si el worker termina inesperadamente.
+El navegador, las acciones comunes sobre elementos, los logs JSON y las métricas se proporcionan mediante [selenium-scraper-runtime](https://github.com/Ismola/selenium-scraper-runtime) desde la rama `main`. Cada controlador cierra su sesión en `finally`; la librería también limita la duración de los comandos y elimina el árbol de procesos si el worker termina inesperadamente.
 
 ## Ejemplo: consultar el calendario
 
