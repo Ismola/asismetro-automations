@@ -12,7 +12,7 @@ PORT = int(os.getenv("PORT", 3000))
 METRICS_PORT = int(os.getenv("METRICS_PORT", 9090))
 MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", 10 * 1024 * 1024))
 DOWNLOAD_MAX_TIMEOUT = int(os.getenv("DOWNLOAD_MAX_TIMEOUT", 4))
-
+URL = "https://asismetro.org/"
 
 def validate_runtime_configuration():
     if STAGE == "production" and (not VALID_TOKEN or VALID_TOKEN == "sample"):

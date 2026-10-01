@@ -12,7 +12,8 @@ def go_to_next_calendar(driver):
     try:
 
         course_registration_link = search_element(driver, (
-            By.XPATH, '//input[@name="mes" and @value="Mes Siguiente" and @type="submit"]'
+            By.XPATH,
+            '//button[@type="submit" and @name="mes" and @value="Mes Siguiente" and contains(@class, "home2-mini-shortcut")]'
         ))
         driver = click_element(driver, course_registration_link)
         
