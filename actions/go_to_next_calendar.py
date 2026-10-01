@@ -14,12 +14,16 @@ def go_to_next_calendar(driver):
         course_registration_link = search_element(driver, (
             By.XPATH,
             '//button[@type="submit" and @name="mes" and @value="Mes Siguiente" and contains(@class, "home2-mini-shortcut")]'
-        ))
+        ), raise_exception=False)
+        if course_registration_link is None:
+            logging.info("Next month calendar is not available")
+            return driver, False
+
         driver = click_element(driver, course_registration_link)
         
         sleep(1)
 
-        return driver
+        return driver, True
     except Exception as e:
         raise messageError(
             f"Error {inspect.currentframe().f_code.co_name}: {e}")

@@ -32,9 +32,10 @@ def controller_get_calendar(data):
 
         driver.back()
 
-        driver = go_to_next_calendar(driver)
-
-        driver, next_calendar = get_calendar(driver)
+        driver, next_month_available = go_to_next_calendar(driver)
+        next_calendar = None
+        if next_month_available:
+            driver, next_calendar = get_calendar(driver, optional=True)
 
         return {
             "actual_calendar": actual_calendar,
