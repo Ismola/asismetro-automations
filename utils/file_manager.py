@@ -9,6 +9,7 @@ import uuid
 import tempfile
 import shutil
 from datetime import datetime
+import time
 
 
 def clear_directory(directory):
@@ -43,6 +44,48 @@ def create_download_directory(directory_name):
     download_dir = os.path.join(current_directory, directory_name)
     os.makedirs(download_dir, exist_ok=True)
     return download_dir
+
+
+def delete_file(filepath):
+    """Delete a file when it exists."""
+    if os.path.isfile(filepath):
+        os.remove(filepath)
+
+
+def read_and_delete_download(directory, filename, timeout=10):
+    """Wait for a browser download, read it as UTF-8 text, then delete it."""
+    if os.path.basename(filename) != filename:
+        raise messageError("El nombre del archivo descargado no es válido")
+
+    filepath = os.path.join(directory, filename)
+    partial_paths = (f"{filepath}.crdownload", f"{filepath}.part")
+    deadline = time.monotonic() + timeout
+    previous_size = None
+    stable_checks = 0
+
+    while time.monotonic() < deadline:
+        if os.path.isfile(filepath) and not any(os.path.exists(path) for path in partial_paths):
+            current_size = os.path.getsize(filepath)
+            if current_size == previous_size:
+                stable_checks += 1
+                if stable_checks >= 2:
+                    try:
+                        with open(filepath, "r", encoding="utf-8-sig", newline="") as downloaded_file:
+                            contents = downloaded_file.read()
+                        os.remove(filepath)
+                        return contents
+                    except Exception as error:
+                        raise messageError(f"Error al leer el archivo descargado {filename}: {error}")
+            else:
+                previous_size = current_size
+                stable_checks = 0
+        else:
+            previous_size = None
+            stable_checks = 0
+
+        time.sleep(0.2)
+
+    raise messageError(f"No se completó la descarga de {filename} en {timeout} segundos")
 
 
 def clean_filename(filename):
