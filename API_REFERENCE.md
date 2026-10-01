@@ -135,71 +135,31 @@ curl -X POST http://localhost:3000/get-calendar \
 {
   "status": "OK",
   "message": {
-    "actual_calendar": { "sections": [ ... ] },
-    "next_calendar":   { "sections": [ ... ] }
+    "actual_calendar": {
+      "name": "Calendario de turnos",
+      "timezone": "Europe/Madrid",
+      "events": [
+        {
+          "uid": "shift-1",
+          "summary": "Turno",
+          "description": "Información del turno",
+          "location": "Callao",
+          "start": "2026-10-10T09:00:00+02:00",
+          "end": "2026-10-10T12:00:00+02:00",
+          "all_day": false,
+          "status": "CONFIRMED"
+        }
+      ]
+    },
+    "next_calendar": null
   },
   "time": 15.42
 }
 ```
 
-Both `actual_calendar` and `next_calendar` share the same structure:
+The API downloads the `.ics` export and decodes its events into JSON. Any HTML surrounding the iCalendar block is excluded. Both calendar fields use the structure above. If AsisMetro has not published the next month's export yet, `next_calendar` is `null`; the current calendar is still returned. A published calendar with no events has an empty `events` array.
 
-```json
-{
-  "sections": [
-    {
-      "days": [
-        { "weekday": "Lunes", "date": "1 MAYO" },
-        { "weekday": "Martes", "date": "2 MAYO" }
-      ],
-      "slots": [
-        {
-          "time_range": "09:00 - 12:00",
-          "entries": [
-            {
-              "weekday": "Lunes",
-              "date": "1 MAYO",
-              "status": "warning" | "danger" | "info" | "active" | null,
-              "request_button": {
-                "label": "Solicitar Turno",
-                "onclick": "cambio('A','1234567890','1','MAYO','T1')",
-                "parsed_onclick": {
-                  "raw": "cambio('A','1234567890','1','MAYO','T1')",
-                  "action_code": "A",
-                  "unix_time": "1234567890",
-                  "day_number": "1",
-                  "month": "MAYO",
-                  "slot_code": "T1"
-                }
-              },
-              "assignees": [
-                { "id": "1", "name": "Carlos Castellanos", "phone": "607297573" }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
-
-Each calendar is split into **sections** (one per week). Each section contains:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `days` | object[] | Ordered list of days in the week (`weekday`, `date`) |
-| `slots` | object[] | Time slots for that week |
-| `slots[].time_range` | string | Time range label, e.g. `"09:00 - 12:00"` |
-| `slots[].entries` | object[] | One entry per day — mirrors the `days` order |
-| `entries[].weekday` | string \| null | Weekday name |
-| `entries[].date` | string \| null | Date label, e.g. `"1 MAYO"` |
-| `entries[].status` | string \| null | CSS class indicating slot state: `"warning"`, `"danger"`, `"info"`, `"active"`, or `null` |
-| `entries[].request_button` | object \| null | Present when the slot can be requested; `null` otherwise |
-| `entries[].assignees` | object[] | People assigned to the slot (may be empty) |
-| `assignees[].id` | string \| null | Internal toggle ID |
-| `assignees[].name` | string \| null | Assignee full name |
-| `assignees[].phone` | string \| null | Assignee phone number |
+`start` and `end` use ISO 8601 strings with the offset from the export when available. All-day events use dates (`YYYY-MM-DD`) and have `all_day: true`; their end date is exclusive. Fields absent from the export are `null`. Each event represents a `VEVENT` in the export.
 
 ---
 

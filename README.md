@@ -14,12 +14,7 @@ De esta forma, los turnos aparecen en la aplicación de calendario que utilizas 
 
 ### Consultar el calendario
 
-Devuelve los turnos del mes actual y del mes siguiente, incluyendo:
-
-- Los días y horarios.
-- Las personas asignadas a cada turno.
-- El estado de cada turno.
-- Los turnos que todavía se pueden solicitar.
+Descarga los archivos `.ics` del mes actual y del siguiente y devuelve sus eventos en JSON, con fechas, horarios, título, descripción y ubicación. Si todavía no existe el calendario siguiente, ese valor se devuelve como `null`.
 
 Ruta: `POST /get-calendar`
 

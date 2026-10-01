@@ -1,4 +1,5 @@
 gunicorn>=22,<27
 python-dotenv>=1,<2
 requests>=2.31,<3
+icalendar>=6,<8
 selenium-scraper-runtime[browser] @ https://github.com/Ismola/selenium-scraper-runtime/archive/refs/heads/main.tar.gz

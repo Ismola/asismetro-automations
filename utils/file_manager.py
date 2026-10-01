@@ -70,7 +70,7 @@ def read_and_delete_download(directory, filename, timeout=10):
                 stable_checks += 1
                 if stable_checks >= 2:
                     try:
-                        with open(filepath, "r", encoding="utf-8-sig") as downloaded_file:
+                        with open(filepath, "r", encoding="utf-8-sig", newline="") as downloaded_file:
                             contents = downloaded_file.read()
                         os.remove(filepath)
                         return contents

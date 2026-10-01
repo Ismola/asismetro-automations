@@ -30,6 +30,34 @@ def test_calendar_closes_driver_when_site_action_fails(monkeypatch):
     close.assert_called_once_with(driver)
 
 
+@pytest.mark.parametrize("next_month_available", [False, True])
+def test_calendar_returns_current_month_when_next_month_is_missing(monkeypatch, next_month_available):
+    driver = Mock()
+    actual_calendar = {"name": "Turnos", "timezone": "Europe/Madrid", "events": []}
+    close = Mock()
+    monkeypatch.setattr(controller_get_calendar, "get_page", Mock(return_value=driver))
+    monkeypatch.setattr(controller_get_calendar, "login", Mock(return_value=driver))
+    monkeypatch.setattr(controller_get_calendar, "go_to_actual_calendar", Mock(return_value=driver))
+    monkeypatch.setattr(
+        controller_get_calendar,
+        "get_calendar",
+        Mock(side_effect=[(driver, actual_calendar), (driver, None)]),
+    )
+    monkeypatch.setattr(driver, "back", Mock())
+    monkeypatch.setattr(
+        controller_get_calendar,
+        "go_to_next_calendar",
+        Mock(return_value=(driver, next_month_available)),
+    )
+    monkeypatch.setattr(controller_get_calendar, "close_driver", close)
+    monkeypatch.setattr(controller_get_calendar, "take_screenshot", Mock())
+
+    result = controller_get_calendar.controller_get_calendar({"username": "u", "password": "p"})
+
+    assert result == {"actual_calendar": actual_calendar, "next_calendar": None}
+    close.assert_called_once_with(driver)
+
+
 def test_registration_closes_driver_when_site_action_fails(monkeypatch):
     driver = Mock()
     close = Mock()
